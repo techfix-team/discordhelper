@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de Sécurité : Vulnérabilité d'Exfiltration via API Discord Bot</title>
+    <style>
+        /* Déclaration des variables pour la gestion des thèmes */
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #4a5568;
+            --title-color: #1a202c;
+            --banner-bg: #1a202c;
+            --banner-text: #ffffff;
+            --banner-border: #3182ce;
+            --callout-bg: #f7fafc;
+            --callout-border: #4a5568;
+            --code-bg: #f8fafc;
+            --code-border: #e2e8f0;
+            --code-text: #0f172a;
+            --border-line: #e2e8f0;
+            --btn-bg: #1a202c;
+            --btn-text: #ffffff;
+        }
+
+        /* Mode Sombre Automatique */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0d1117;
+                --text-main: #c9d1d9;
+                --text-muted: #8b949e;
+                --title-color: #f0f6fc;
+                --banner-bg: #161b22;
+                --banner-text: #f0f6fc;
+                --banner-border: #58a6ff;
+                --callout-bg: #161b22;
+                --callout-border: #8b949e;
+                --code-bg: #0d1117;
+                --code-border: #30363d;
+                --code-text: #ff7b72;
+                --border-line: #21262d;
+                --btn-bg: #21262d;
+                --btn-text: #c9d1d9;
+            }
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Bandeau supérieur type documentation Symfony */
+        .top-banner {
+            padding: 30px 40px;
+            background-color: var(--banner-bg);
+            color: var(--banner-text);
+            border-bottom: 3px solid var(--banner-border);
+        }
+        
+        .top-banner .doc-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .top-banner h1 {
+            margin: 8px 0 0 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--banner-text);
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--title-color);
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-line);
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-align: justify;
+        }
+
+        strong {
+            color: var(--title-color);
+        }
+
+        /* Encadré d'avertissement */
+        .callout {
+            background-color: var(--callout-bg);
+            border-left: 4px solid var(--callout-border);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .callout-title {
+            font-weight: bold;
+            color: var(--title-color);
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Bloc de code technique */
+        .code-block {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 13px;
+            background-color: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            color: var(--code-text);
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* Zone d'action épurée pour le bouton */
+        .action-container {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: var(--callout-bg);
+            border: 1px dashed var(--code-border);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .btn-doc {
+            display: inline-block;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            border: 1px solid var(--code-border);
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .btn-doc:hover {
+            background-color: var(--bg-color);
+            color: var(--title-color);
+            border-color: var(--title-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-banner">
+        <h1>Analyse de la faille CVE-Simulation : Exfiltration par Jetons d'API Discord</h1>
+    </div>
+
+    <div class="main-content">
+        <h2>1. Synthèse de la vulnérabilité</h2>
+        <p>
+            La présente documentation technique décrit un vecteur d'attaque exploitant les privilèges accordés aux applications tierces (bots) au sein de l'écosystème Discord. Cette vulnérabilité conceptuelle repose sur l'abus des autorisations OAuth2 et l'exfiltration de données d'identification via l'interception de jetons de session utilisateur.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title">Avertissement de sécurité</div>
+            <p>Ce document est publié dans un but purement éducatif et de recherche dans le cadre du projet de simulation de défense informatique associé.</p>
+        </div>
+
+        <h2>2. Mécanisme technique de l'attaque</h2>
+        <p>
+            L'exploitation se déroule en trois phases distinctes, exploitant le manque de compartimentation des jetons de session (tokens) de l'utilisateur :
+        </p>
+        
+        <p>
+            <strong>Phase 1 : Compromission du vecteur d'accès.</strong> L'attaquant déploie une application tierce ou un bot Discord invité sur un serveur cible sous un faux prétexte (utilitaire de modération ou système de récompense). Le bot requiert l'activation des permissions étendues (<em>Privileged Gateway Intents</em>).
+        </p>
+
+        <p>
+            <strong>Phase 2 : Extraction et interception du Token.</strong> Via une technique d'ingénierie sociale ou l'injection de scripts malveillants sur un faux portail de connexion, le jeton d'authentification unique de l'utilisateur (Discord Token) est capturé et transmis vers un serveur distant (C2).
+        </p>
+
+        <div class="code-block">GET /api/v9/users/@me HTTP/1.1
+Host: discord.com
+Authorization: [TOKEN_EXFILTRÉ]
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)</div>
+
+        <p>
+            <strong>Phase 3 : Exfiltration des informations personnelles.</strong> Muni de ce jeton, l'attaquant contourne l'authentification à deux facteurs (2FA) active sur l'interface globale. Le script automatisé effectue une série de requêtes d'API pour extraire : l'adresse e-mail principale, le numéro de téléphone lié, l'adresse IP de connexion et les informations de paiement enregistrées.
+        </p>
+
+        <h2>3. Guide d'utilisation de la simulation (Tutoriel)</h2>
+        <p>
+            Afin de comprendre concrètement les mécanismes de propagation et d'atténuation de ce type de menace, vous devez déployer notre module de désinfection logique.
+        </p>
+
+        <!-- ============================================ -->
+        <!-- AJOUTE TON PROPRE TUTORIEL JUSTE EN DESSOUS  -->
+        <!-- ============================================ -->
+        <p>
+            <strong>Étape 1 :</strong> Observez la console d'alerte pour identifier l'ID du malware actif. <br>
+            <strong>Étape 2 :</strong> Utilisez vos commandes réseau pour ériger des pare-feux autour de vos jetons API Discord.<br>
+            <strong>Étape 3 :</strong> Détruisez le virus principal avant la fin du compte à rebours pour purger la faille.
+        </p>
+        <!-- ============================================ -->
+
+        <div class="action-container">
+            <p style="margin: 0; font-weight: 600; color: var(--title-color);">Accéder au module de neutralisation de la menace :</p>
+            <!-- Remplace LIEN_DE_TON_JEU par la vraie adresse de ton jeu -->
+            <a href="formConnexion.html" class="btn-doc">Lancer</a>
+        </div>
+    </div>
+
+</body>
+</html>
