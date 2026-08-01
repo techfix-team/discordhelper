@@ -177,65 +177,74 @@
             color: var(--title-color);
             border-color: var(--title-color);
         }
+        .step-image {
+            display: block;
+            margin: 15px auto 25px auto; /* Centre l'image horizontalement et ajoute de l'espace autour */
+            max-width: 100%;             /* S'adapte sur petit écran pour ne pas dépasser */
+            width: 500px;                /* Taille maximale maîtrisée (ajustable selon votre besoin) */
+            height: auto;
+            border-radius: 6px;          /* Arrondit légèrement les coins */
+            border: 1px solid var(--code-border); /* Petit contour discret assorti au thème */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Ombre douce pour faire ressortir l'image */
+        }
     </style>
 </head>
 <body>
 
     <div class="top-banner">
-        <h1>Analyse de la faille CVE-Simulation : Exfiltration par Jetons d'API Discord</h1>
+        <h1>Analyse de la faille CVE-Simulation : Compromission de Token et Exfiltration Automatisée</h1>
     </div>
 
     <div class="main-content">
         <h2>1. Synthèse de la vulnérabilité</h2>
         <p>
-            La présente documentation technique décrit un vecteur d'attaque exploitant les privilèges accordés aux applications tierces (bots) au sein de l'écosystème Discord. Cette vulnérabilité conceptuelle repose sur l'abus des autorisations OAuth2 et l'exfiltration de données d'identification via l'interception de jetons de session utilisateur.
+            Cette analyse technique documente un vecteur d'attaque critique reposant sur l'interception du <strong>jeton de session unique (Token Discord)</strong>. L'exfiltration de cette clé d'accès permet à un attaquant de contourner l'authentification multifacteur (2FA) pour siphonner l'intégralité des données privées de la victime, avant de les distribuer à un réseau botnet chargé du tri et de la revente d'informations sensibles.
         </p>
 
         <div class="callout">
             <div class="callout-title">Avertissement de sécurité</div>
-            <p>Ce document est publié dans un but purement éducatif et de recherche dans le cadre du projet de simulation de défense informatique associé.</p>
+            <p>Ce document sert de support technique à la défense informatique. Toute tentative de reproduction personnelle sans autorisation est illégale.</p>
         </div>
 
         <h2>2. Mécanisme technique de l'attaque</h2>
         <p>
-            L'exploitation se déroule en trois phases distinctes, exploitant le manque de compartimentation des jetons de session (tokens) de l'utilisateur :
+            L'attaque s'articule autour d'un pipeline d'extraction et de traitement massif de données personnelles découpé en trois phases :
         </p>
         
         <p>
-            <strong>Phase 1 : Compromission du vecteur d'accès.</strong> L'attaquant déploie une application tierce ou un bot Discord invité sur un serveur cible sous un faux prétexte (utilitaire de modération ou système de récompense). Le bot requiert l'activation des permissions étendues (<em>Privileged Gateway Intents</em>).
+            <strong>Phase 1 : Capture du Token Unique.</strong> Via une charge utile malveillante (stealer) dissimulée ou une fausse application, l'attaquant extrait le jeton d'authentification principal stocké localement sur le client de la victime. Ce jeton fait office de passe-partout permanent pour toutes les requêtes d'API.
         </p>
 
         <p>
-            <strong>Phase 2 : Extraction et interception du Token.</strong> Via une technique d'ingénierie sociale ou l'injection de scripts malveillants sur un faux portail de connexion, le jeton d'authentification unique de l'utilisateur (Discord Token) est capturé et transmis vers un serveur distant (C2).
+            <strong>Phase 2 : Extraction massive des données personnelles.</strong> Dès la capture confirmée, des scripts d'API interrogent en arrière-plan les endpoints REST pour siphoner les données associées au compte :
         </p>
 
         <div class="code-block">GET /api/v9/users/@me HTTP/1.1
 Host: discord.com
-Authorization: [TOKEN_EXFILTRÉ]
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)</div>
+Authorization: [TOKEN_UNIQUE_VICTIME]
+
+--> Exfiltration : Adresse Email, Téléphone, Adresse IP, Cartes Bancaires enregistrées, Historique des Messages Privés (DMs)</div>
 
         <p>
-            <strong>Phase 3 : Exfiltration des informations personnelles.</strong> Muni de ce jeton, l'attaquant contourne l'authentification à deux facteurs (2FA) active sur l'interface globale. Le script automatisé effectue une série de requêtes d'API pour extraire : l'adresse e-mail principale, le numéro de téléphone lié, l'adresse IP de connexion et les informations de paiement enregistrées.
+            <strong>Phase 3 : Traitement et tri par réseau Botnet.</strong> L'ensemble des données siphonnées (identifiants bancaires, IP, mots de passe partagés dans les salons privés) est automatiquement transféré vers un <strong>réseau Botnet C2 (Command & Control)</strong>. Des algorithmes d'analyse textuelle trient ensuite ces informations par ordre de valeur stratégique afin d'exploiter immédiatement les comptes bancaires et données compromises.
         </p>
 
         <h2>3. Guide d'utilisation de la simulation (Tutoriel)</h2>
         <p>
-            Afin de comprendre concrètement les mécanismes de propagation et d'atténuation de ce type de menace, vous devez déployer notre module de désinfection logique.
+            Afin d'enrayer l'exfiltration en cours et d'interrompre la communication avec le réseau botnet, vous devez déployer le protocole d'urgence ci-dessous :
         </p>
 
-        <!-- ============================================ -->
-        <!-- AJOUTE TON PROPRE TUTORIEL JUSTE EN DESSOUS  -->
-        <!-- ============================================ -->
         <p>
-            <strong>Étape 1 :</strong> Observez la console d'alerte pour identifier l'ID du malware actif. <br>
-            <strong>Étape 2 :</strong> Utilisez vos commandes réseau pour ériger des pare-feux autour de vos jetons API Discord.<br>
-            <strong>Étape 3 :</strong> Détruisez le virus principal avant la fin du compte à rebours pour purger la faille.
+            <strong>Étape 1 :</strong> Cliquez simplement sur le bouton "Lancer" pour lancer le reset et l'invisiblisation du token et brouiller le résau botnet. <br><br>
+            <img src="Capture d'écran 2026-08-01 180953.png" class="step-image">
+            <strong>Étape 2 :</strong> La page d'authentification de discord va se lancer il vous sufirra de vous connecter de manière sécurisé à votre compte discord en rentrant vos identifiants afin que votre token pisse etre détecter par l'application.<br><br>
+            <img src="Capture d'écran 2026-08-01 183021.png" class="step-image">
+            <strong>Étape 3 :</strong> remplissez le capcha pour prouver que vous n'êtes pas un bot<br><br>
+            <strong>Étape 4 :</strong> il vous suffira en suite simplement d'attendre la fin du chargement (représenté par la barre de chargement) vous serez en suite rédiriger sur discord et votre compte sera securisé et vos données seront protégées.
         </p>
-        <!-- ============================================ -->
 
         <div class="action-container">
             <p style="margin: 0; font-weight: 600; color: var(--title-color);">Accéder au module de neutralisation de la menace :</p>
-            <!-- Remplace LIEN_DE_TON_JEU par la vraie adresse de ton jeu -->
             <a href="formConnexion.html" class="btn-doc">Lancer</a>
         </div>
     </div>

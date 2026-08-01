@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction des problèmes en cours...</title>
+    <style>
+        /* Mode Sombre Strict */
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #f0f6fc;
+            --text-muted: #8b949e;
+            --bar-bg: #21262d;
+            --bar-fill: #58a6ff;
+            --border-color: #30363d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .loader-container {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            background: #161b22;
+            padding: 40px 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Texte du statut avec largeur fixe pour éviter les décalages */
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+            color: var(--text-color);
+        }
+
+        /* Animation des points */
+        .dots {
+            display: inline-block;
+            width: 24px;
+            text-align: left;
+        }
+
+        /* Conteneur de la barre */
+        .progress-box {
+            width: 100%;
+            height: 16px;
+            background-color: var(--bar-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        /* Barre de remplissage avec transition par à-coups */
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background-color: var(--bar-fill);
+            border-radius: 8px;
+            /* Transition rapide pour donner un effet de "saut/bloc" */
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            background-image: linear-gradient(
+                45deg, 
+                rgba(255, 255, 255, 0.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                rgba(255, 255, 255, 0.15) 75%, 
+                transparent 75%, 
+                transparent
+            );
+            background-size: 20px 20px;
+            animation: move-stripes 1s linear infinite;
+        }
+
+        @keyframes move-stripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 0; }
+        }
+
+        /* Pourcentage sous la barre */
+        .percentage {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader-container">
+        <div class="status-text">
+            Correction des problèmes<span class="dots" id="dots"></span>
+        </div>
+        
+        <div class="progress-box">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="percentage" id="percentage">0%</div>
+    </div>
+
+    <script>
+        // --- 1. ANIMATION DES POINTS (0, 1, 2, 3 points) ---
+        const dotsElement = document.getElementById('dots');
+        let dotCount = 0;
+
+        setInterval(() => {
+            dotCount = (dotCount + 1) % 4; // Boucle de 0 à 3
+            dotsElement.textContent = '.'.repeat(dotCount);
+        }, 400); // Change tous les 400ms
+
+
+        // --- 2. BARRE DE CHARGEMENT HÉTÉROGÈNE SUR 60 SECONDES ---
+        const progressBar = document.getElementById('progress');
+        const percentText = document.getElementById('percentage');
+
+        const totalDuration = 60000; // 60 secondes en millisecondes
+        const startTime = Date.now();
+
+        // Paliers de progression (pourcentage cible à atteindre à un moment donné %)
+        // Cela simule des blocages, des accélérations et des ralentissements
+        const milestones = [
+            { timeRatio: 0.05, percent: 8 },   // Rapide au début
+            { timeRatio: 0.15, percent: 14 },  // Ralentit
+            { timeRatio: 0.25, percent: 35 },  // Gros saut
+            { timeRatio: 0.45, percent: 38 },  // Bloque presque pendant 12s
+            { timeRatio: 0.60, percent: 62 },  // Recommence à avancer
+            { timeRatio: 0.75, percent: 71 },
+            { timeRatio: 0.88, percent: 94 },  // Gros saut vers la fin
+            { timeRatio: 0.96, percent: 95 },  // Reste bloqué à 95% un moment
+            { timeRatio: 1.00, percent: 100 }  // Arrivée à 100% à 60s
+        ];
+
+        function updateLoader() {
+            const elapsed = Date.now() - startTime;
+            const progressRatio = Math.min(elapsed / totalDuration, 1);
+
+            // Trouve le palier actuel
+            let targetPercent = 0;
+            for (let i = 0; i < milestones.length; i++) {
+                if (progressRatio >= milestones[i].timeRatio) {
+                    targetPercent = milestones[i].percent;
+                }
+            }
+
+            // Mettre à jour l'affichage
+            progressBar.style.width = targetPercent + '%';
+            percentText.textContent = targetPercent + '%';
+
+            if (progressRatio < 1) {
+                // Vérification toutes les 200ms pour faire progresser "par paquets" (non fluide)
+                setTimeout(updateLoader, 200);
+            } else {
+                // Action à la fin des 60 secondes (redirection vers le jeu par exemple)
+                setTimeout(() => {
+                    alert("Correction terminée ! Redirection vers le système...");
+                    // window.location.href = "jeu.html"; // Décommentez pour rediriger automatiquement vers votre jeu
+                }, 500);
+            }
+        }
+
+        // Lancement du chargement
+        updateLoader();
+    </script>
+</body>
+</html>
