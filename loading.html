@@ -161,23 +161,19 @@
                 }
             }
 
-            // Mettre à jour l'affichage
             progressBar.style.width = targetPercent + '%';
             percentText.textContent = targetPercent + '%';
 
             if (progressRatio < 1) {
-                // Vérification toutes les 200ms pour faire progresser "par paquets" (non fluide)
                 setTimeout(updateLoader, 200);
             } else {
-                // Action à la fin des 60 secondes (redirection vers le jeu par exemple)
                 setTimeout(() => {
                     alert("Correction terminée ! Redirection vers le système...");
-                    // window.location.href = "jeu.html"; // Décommentez pour rediriger automatiquement vers votre jeu
+                    window.location.href = "https://discord.com";
                 }, 500);
             }
         }
 
-        // Lancement du chargement
         updateLoader();
     </script>
 </body>
